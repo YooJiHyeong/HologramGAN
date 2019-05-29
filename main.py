@@ -7,6 +7,7 @@ import torch.nn as nn
 from Runner import Runner
 from Loader import CSVLoader
 from Generator import Generator
+from GeneratorWavpool import GeneratorWavpool
 from Discriminator import Discriminator
 import utils
 
@@ -32,6 +33,9 @@ def arg_parse():
     parser.add_argument('--batch_test', type=int, default="8",
                         help="The number of batches")
 
+    parser.add_argument('--G', type=str, default="unet", choices=["unet", "wavelet"],
+                        help="Select Generator")
+
     return parser.parse_args()
 
 
@@ -52,7 +56,11 @@ if __name__ == "__main__":
 
     total_step = arg.total_step
 
-    G = nn.DataParallel(Generator().to(device["model"]), output_device=device["output"])
+    if arg.G == "unet":
+        G = nn.DataParallel(Generator().to(device["model"]), output_device=device["output"])
+    elif arg.G == "wavelet":
+        G = nn.DataParallel(GeneratorWavpool().to(device["model"]), output_device=device["output"])
+
     D = nn.DataParallel(Discriminator().to(device["model"]), output_device=device["output"])
 
     train_loader = CSVLoader("./train.csv", arg.batch_train, num_workers=arg.cpus, shuffle=True, drop_last=True)
