@@ -1,8 +1,10 @@
 import torch
 import torch.nn as nn
 
+from wavelet_modules import WavePool
 
-class Discriminator(nn.Module):
+
+class DiscriminatorWavpool(nn.Module):
     def __init__(self, img_ch=1, start_ch=64, kernel_size=4, padding=1, block_num=4):
         super().__init__()
 

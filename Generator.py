@@ -5,7 +5,7 @@ from preset import block_ch
 
 
 class Generator(nn.Module):
-    def __init__(self, img_ch=1, ch_grow=4):
+    def __init__(self, img_ch=2, ch_grow=4):
         super().__init__()
 
         start_ch = block_ch[0][0]
@@ -17,7 +17,9 @@ class Generator(nn.Module):
 
         self.to_rgb = nn.Sequential(
             nn.ReLU(True),
-            nn.ConvTranspose2d(start_ch, img_ch, 4, 2, 1),
+            nn.Upsample(scale_factor=2),
+            nn.Conv2d(start_ch, img_ch // 2, 3, 1, 1),
+            # nn.ConvTranspose2d(start_ch, img_ch // 2, 4, 2, 1),
             nn.Tanh()
         )
 
@@ -36,7 +38,9 @@ class Generator(nn.Module):
                 in_ch *= 2
             self.decoder.append(nn.Sequential(
                                 nn.ReLU(True),
-                                nn.ConvTranspose2d(in_ch, out_ch, 4, 2, 1),
+                                nn.Upsample(scale_factor=2),
+                                nn.Conv2d(in_ch, out_ch, 3, 1, 1),
+                                # nn.ConvTranspose2d(in_ch, out_ch, 4, 2, 1),
                                 nn.BatchNorm2d(out_ch)))
         self.decoder = nn.Sequential(*self.decoder)
 
@@ -47,7 +51,7 @@ class Generator(nn.Module):
         for e in self.encoder:
             x = e(x)
             features.append(x)
-            
+
         for i, d in enumerate(self.decoder):
             if i == 0:
                 x = d(x)
@@ -55,7 +59,7 @@ class Generator(nn.Module):
                 x = d(torch.cat([x, features[-i - 1]], 1))
 
         x = self.to_rgb(x)
-            
+
         return x
 
 
