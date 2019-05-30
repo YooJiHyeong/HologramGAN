@@ -8,6 +8,7 @@ from Runner import Runner
 from Loader import CSVLoader
 from Generator import Generator
 from GeneratorWavpool import GeneratorWavpool
+from GeneratorAvgpool import GeneratorAvgpool
 from Discriminator import Discriminator
 import utils
 
@@ -33,7 +34,7 @@ def arg_parse():
     parser.add_argument('--batch_test', type=int, default="8",
                         help="The number of batches")
 
-    parser.add_argument('--G', type=str, default="unet", choices=["unet", "wavelet"],
+    parser.add_argument('--G', type=str, default="unet", choices=["unet", "wavelet", "avgpool"],
                         help="Select Generator")
 
     return parser.parse_args()
@@ -60,11 +61,13 @@ if __name__ == "__main__":
         G = nn.DataParallel(Generator().to(device["model"]), output_device=device["output"])
     elif arg.G == "wavelet":
         G = nn.DataParallel(GeneratorWavpool().to(device["model"]), output_device=device["output"])
+    elif arg.G == "avgpool":
+        G = nn.DataParallel(GeneratorAvgpool().to(device["model"]), output_device=device["output"])
 
     D = nn.DataParallel(Discriminator().to(device["model"]), output_device=device["output"])
 
-    train_loader = CSVLoader("./train.csv", arg.batch_train, num_workers=arg.cpus, shuffle=True, drop_last=True)
-    test_loader  = CSVLoader("./test.csv",  arg.batch_test,  num_workers=arg.cpus, shuffle=True, drop_last=True)
+    train_loader = CSVLoader("./train_2.csv", arg.batch_train, num_workers=arg.cpus, shuffle=True, drop_last=True)
+    test_loader  = CSVLoader("./test_2.csv",  arg.batch_test,  num_workers=arg.cpus, shuffle=True, drop_last=True)
 
     tensorboard = utils.TensorboardLogger("%s/tb" % (arg.save_dir))
 

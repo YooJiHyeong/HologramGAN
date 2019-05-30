@@ -30,4 +30,3 @@ for f in test_folder:
     pngs = sorted(glob(f + "/*.png"))
     for i, p in enumerate(pngs[1::3]):
         test_csv.writerow([pngs[3 * i + 1], pngs[3 * i + 2], pngs[3 * i + 3]])
-        
