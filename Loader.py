@@ -7,7 +7,7 @@ from torchvision.transforms import ToTensor, Resize
 
 
 class CSVSet(data.Dataset):
-    def __init__(self, csv_path, transform=None, aug_rate=0, delim=";"):
+    def __init__(self, csv_path, transform=None, aug_rate=0, delim=","):
         self.items = []
 
         with open(csv_path, "r") as f:
@@ -15,7 +15,7 @@ class CSVSet(data.Dataset):
             lines = f.readlines()
 
             for line in lines:
-                line = line.strip().split(",")
+                line = line.strip().split(delim)
                 self.items += [line]
 
         self.transform = [Resize((512, 512)), ToTensor()]
@@ -56,23 +56,6 @@ def CSVLoader(csv_path, batch_size, sampler=False,
 
 
 if __name__ == "__main__":
-    # train_loader = CSVLoader("./train.csv", arg.batch_train, num_workers=arg.cpus, shuffle=True, drop_last=True)
     test_loader  = CSVLoader("./test.csv",  8,  num_workers=40, shuffle=True, drop_last=True)
-    # print(len(test_loader.dataset.items))
-    print("======================================")
     for i, (img, target, path) in enumerate(test_loader):
         print(i)
-        # print(img.shape, target.shape)
-
-        # import torchvision
-
-        # i1 = img[0, 0]
-        # i2 = img[0, 1]
-        # t = target[0, 0]
-
-        # # ivus = (ivus - ivus.min()) / (ivus.max() - ivus.min())
-        # # mask = (mask - mask.min()) / (mask.max() - mask.min())
-        # torchvision.utils.save_image(i1, "i1.png")
-        # torchvision.utils.save_image(i2, "i2.png")
-        # torchvision.utils.save_image(t, "t.png")
-        # input("wating")
