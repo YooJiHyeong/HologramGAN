@@ -9,6 +9,7 @@ from Runner import Runner
 from Loader import CSVLoader
 from Generator import Generator
 from GeneratorWavpool import GeneratorWavpool
+from GeneratorAvgpool import GeneratorAvgpool
 from Discriminator import Discriminator
 import utils
 
@@ -34,7 +35,7 @@ def arg_parse():
     parser.add_argument('--batch_test', type=int, default="8",
                         help="The number of batches (note that this is equivalent to the number of logged sample images)")
 
-    parser.add_argument('--G', type=str, default="unet", choices=["unet", "wavelet"],
+    parser.add_argument('--G', type=str, default="unet", choices=["unet", "wavelet", "avgpool"],
                         help="Select Generator")
 
     return parser.parse_args()
@@ -61,6 +62,8 @@ if __name__ == "__main__":
         G = nn.DataParallel(Generator().to(device["model"]), output_device=device["output"])
     elif arg.G == "wavelet":
         G = nn.DataParallel(GeneratorWavpool().to(device["model"]), output_device=device["output"])
+    elif arg.G == "avgpool":
+        G = nn.DataParallel(GeneratorAvgpool().to(device["model"]), output_device=device["output"])
 
     D = nn.DataParallel(Discriminator().to(device["model"]), output_device=device["output"])
 
