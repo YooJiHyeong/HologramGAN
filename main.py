@@ -20,7 +20,7 @@ def arg_parse():
 
     parser.add_argument('--gpus', type=str, default=",".join(map(str, range(cuda.device_count()))),
                         help="Select GPU Numbering (Default : Maximum number of available GPUs)")
-    parser.add_argument('--cpus', type=int, default="40",
+    parser.add_argument('--cpus', type=int, default="32",
                         help="The number of CPU workers")
 
     parser.add_argument('--save_dir', type=str, required=True,
