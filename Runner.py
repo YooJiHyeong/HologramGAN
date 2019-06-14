@@ -1,5 +1,11 @@
+import os
+from glob import glob
+
 import torch
 import torch.nn as nn
+from torchvision.utils import save_image
+
+import numpy as np
 
 
 class Runner():
@@ -25,6 +31,40 @@ class Runner():
 
         self.global_step = 0
 
+    def save(self):
+        filename = "step[%06d]" % self.global_step
+        path = self.arg.save_dir + "/%s.pth.tar" % (filename)
+        torch.save({"start_step": self.global_step + 1,
+                    "G"         : self.G.state_dict(),
+                    "D"         : self.D.state_dict(),
+                    "G_optim"   : self.G_optim.state_dict(),
+                    "D_optim"   : self.D_optim.state_dict(),
+                    }, path)
+        print("Model Saved : %s" % path)
+
+    def load(self, filename=None, abs_filename=None):
+        if filename is None and abs_filename is None:
+            filename = sorted(glob(self.arg.save_dir + "/*.pth.tar"))[-1]
+        elif filename is not None:
+            filename = self.arg.save_dir + "/" + filename
+            print(filename)
+        elif abs_filename is not None:
+            filename = abs_filename
+            print(filename)
+        self.filename = os.path.basename(filename)
+
+        if os.path.exists(filename):
+            print("Model Load : %s " % (filename))
+            ckpoint = torch.load(filename)
+            self.G.load_state_dict(ckpoint['G'])
+            self.D.load_state_dict(ckpoint['D'])
+            self.G_optim.load_state_dict(ckpoint['G_optim'])
+            self.D_optim.load_state_dict(ckpoint['D_optim'])
+            self.global_step = ckpoint['start_step']
+            print("Start from [%d] Step" % self.global_step)
+        else:
+            print("Load Failed, the file does not exists")
+
     def train(self):
         def _get_target(x, target):
             out = self.D.forward(torch.cat([x, target], 1))
@@ -41,13 +81,16 @@ class Runner():
 
                 target = target.to(self.device["target"])
                 # print("#####", target.shape)
-                fake_x = self.train_G(x, target)
+                self.train_G(x, target)
                 self.train_D(x, target)
 
                 if self.global_step % 100 == 0:
                     print("[%5d / %5d]" % (self.global_step, self.total_step))
                     self.test()
-                    
+
+                if self.global_step % 1000 == 0:
+                    self.save()
+
     def train_G(self, x, target):
         fake_x = self.G.forward(x)
         with torch.no_grad():
@@ -62,8 +105,6 @@ class Runner():
         self.G_optim.zero_grad()
         G_total_loss.backward()
         self.G_optim.step()
-
-        return fake_x
 
     def train_D(self, x, target, d_iter=1):
         for _ in range(d_iter):
@@ -88,6 +129,17 @@ class Runner():
             x, target, path = next(self.test_loader)
             fake_x = self.G.forward(x)
             self.tensorboard.log_image(fake_x, x, target, self.global_step)
+
+    def inference(self, inference_loader):
+        with torch.no_grad():
+            for i, (x, target, path) in enumerate(inference_loader):
+                fake_x = self.G.forward(x)
+                for img, p in zip(fake_x, path):
+                    save_dir = self.arg.save_dir + "/inference/%s" % p.replace(".png", ".npy")
+                    os.makedirs(os.path.dirname(save_dir), exist_ok=True)
+                    np.save(save_dir, img.cpu().numpy())
+
+                    # save_image(img, save_dir)
 
 
 if __name__ == "__main__":

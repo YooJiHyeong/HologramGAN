@@ -25,17 +25,27 @@ def arg_parse():
 
     parser.add_argument('--save_dir', type=str, required=True,
                         help='Directory which models will be saved in')
+    parser.add_argument('--load_last', action="store_true",
+                        help='Load last model in save directory')
+    parser.add_argument('--load_path', type=str,
+                        help='Path of saved model')
+    parser.add_argument('--load_abspath', type=str,
+                        help='Absolute path of saved model')
+
+    parser.add_argument('--inference', action="store_true",
+                        help='Infer images')
 
     parser.add_argument('--total_step', type=int, default="10000000",
                         help="The number of total steps")
 
-    parser.add_argument('--batch_train', type=int, default="64",
-                        help="The number of batches")
+    parser.add_argument('--batch_train', type=int, default=128,
+                        help="The number of batches for train")
+    parser.add_argument('--batch_test', type=int, default=8,
+                        help="The number of batches for test(note that this is equivalent to the number of logged sample images)")
+    parser.add_argument('--batch_infer', type=int, default=192,
+                        help="The number of batches for inference")
 
-    parser.add_argument('--batch_test', type=int, default="8",
-                        help="The number of batches (note that this is equivalent to the number of logged sample images)")
-
-    parser.add_argument('--G', type=str, default="unet", choices=["unet", "wavelet", "avgpool"],
+    parser.add_argument('--G', type=str, default="wavelet", choices=["unet", "wavelet", "avgpool"],
                         help="Select Generator")
 
     return parser.parse_args()
@@ -73,4 +83,14 @@ if __name__ == "__main__":
     tensorboard = utils.TensorboardLogger("%s/tb" % (arg.save_dir))
 
     runner = Runner(arg, total_step, G, D, train_loader, test_loader, device, tensorboard)
+
+    if arg.inference:
+        inference_loader = CSVLoader("./infer_sp_2.csv", arg.batch_infer, num_workers=arg.cpus, shuffle=False, drop_last=False, cycle=False)
+        runner.load(filename=arg.load_path, abs_filename=arg.load_abspath)
+        runner.inference(inference_loader)
+        exit()
+
+    if any([arg.load_last, arg.load_path, arg.load_abspath]):
+        runner.load(filename=arg.load_path, abs_filename=arg.load_abspath)
+
     runner.train()

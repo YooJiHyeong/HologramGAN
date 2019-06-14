@@ -41,16 +41,19 @@ class CSVSet(data.Dataset):
 
 def CSVLoader(csv_path, batch_size, sampler=False,
               transform=None, aug_rate=0, num_workers=1,
-              shuffle=False, drop_last=False):
+              shuffle=False, drop_last=False, cycle=True):
 
     def _cycle(loader):
         while True:
             for element in loader:
                 yield element
             random.shuffle(loader.dataset.items)
-        
+
     dataset = CSVSet(csv_path, transform=transform, aug_rate=aug_rate, delim=",")
-    loader = _cycle(data.DataLoader(dataset, batch_size, shuffle=shuffle, num_workers=num_workers, drop_last=drop_last, pin_memory=True))
+    loader = data.DataLoader(dataset, batch_size, shuffle=shuffle, num_workers=num_workers, drop_last=drop_last, pin_memory=True)
+
+    if cycle:
+        loader = _cycle(loader)
 
     return loader
 
