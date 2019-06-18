@@ -77,8 +77,8 @@ if __name__ == "__main__":
 
     D = nn.DataParallel(Discriminator().to(device["model"]), output_device=device["output"])
 
-    train_loader = CSVLoader("./train_2.csv", arg.batch_train, num_workers=arg.cpus, shuffle=True, drop_last=True)
-    test_loader  = CSVLoader("./test_2.csv",  arg.batch_test,  num_workers=arg.cpus, shuffle=True, drop_last=True)
+    train_loader = CSVLoader("./csvs/train_3_phase_png.csv", arg.batch_train, num_workers=arg.cpus, shuffle=True, drop_last=True)
+    test_loader  = CSVLoader("./csvs/test_3_phase_png.csv",  arg.batch_test,  num_workers=arg.cpus, shuffle=True, drop_last=True)
 
     tensorboard = utils.TensorboardLogger("%s/tb" % (arg.save_dir))
 
