@@ -20,31 +20,31 @@ train_folder = folder_list[test_folder_num:]
 print(len(test_folder), len(train_folder))
 
 # generate train.csv file
-with open("./train_3_amp_png.csv", "w") as f:
-    train_csv = csv.writer(f, delimiter=",")
+with open("./csvs/train_3_amp_png.csv", "w") as f:
+    train_csv = csv.writer(f, delimiter=";")
     for folder in train_folder:
         pngs = sorted(glob(folder + "/*.png"), key=lambda x: int(os.path.basename(x).replace(".png", "")))
         for i, p in enumerate(pngs[::3]):
             train_csv.writerow([pngs[3 * i], pngs[3 * i + 1], pngs[3 * i + 2]])
 
 # generate test.csv file
-with open("./test_3_amp_png.csv", "w") as f:
-    test_csv = csv.writer(f, delimiter=",")
+with open("./csvs/test_3_amp_png.csv", "w") as f:
+    test_csv = csv.writer(f, delimiter=";")
     for folder in test_folder:
         pngs = sorted(glob(folder + "/*.png"), key=lambda x: int(os.path.basename(x).replace(".png", "")))
         for i, p in enumerate(pngs[::3]):
             test_csv.writerow([pngs[3 * i], pngs[3 * i + 1], pngs[3 * i + 2]])
 
-with open("./train_3_amp_npy.csv", "w") as f:
-    train_csv = csv.writer(f, delimiter=",")
+with open("./csvs/train_3_amp_npy.csv", "w") as f:
+    train_csv = csv.writer(f, delimiter=";")
     for folder in train_folder:
         npys = sorted(glob(folder + "/*.npy"), key=lambda x: int(os.path.basename(x).replace(".npy", "")))
         for i, p in enumerate(npys[::3]):
             train_csv.writerow([npys[3 * i], npys[3 * i + 1], npys[3 * i + 2]])
 
 # generate test.csv file
-with open("./test_3_amp_npy.csv", "w") as f:
-    test_csv = csv.writer(f, delimiter=",")
+with open("./csvs/test_3_amp_npy.csv", "w") as f:
+    test_csv = csv.writer(f, delimiter=";")
     for folder in test_folder:
         npys = sorted(glob(folder + "/*.npy"), key=lambda x: int(os.path.basename(x).replace(".npy", "")))
         for i, p in enumerate(npys[::3]):
