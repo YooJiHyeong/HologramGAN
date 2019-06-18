@@ -69,7 +69,6 @@ class Runner():
         def _get_target(x, target):
             out = self.D.forward(torch.cat([x, target], 1))
             self.target_true  = torch.tensor(1.0).expand_as(out).to(self.device["target"])
-            # print("#####", self.target_true.shape)
             self.target_false = torch.tensor(0.0).expand_as(out).to(self.device["target"])
 
         x, target, path = next(self.train_loader)
@@ -80,7 +79,6 @@ class Runner():
                 self.global_step += 1
 
                 target = target.to(self.device["target"])
-                # print("#####", target.shape)
                 self.train_G(x, target)
                 self.train_D(x, target)
 
@@ -100,7 +98,6 @@ class Runner():
         G_L1_loss = self.L1_loss(fake_x, target) * self.lambda_L1
 
         G_total_loss = G_loss + G_L1_loss
-        # print(1, G_loss.device, G_loss.shape, G_L1_loss.device, G_L1_loss.shape, G_total_loss.device, G_total_loss.shape)
 
         self.G_optim.zero_grad()
         G_total_loss.backward()
@@ -117,8 +114,6 @@ class Runner():
             real_loss = self.GAN_loss(real_y, self.target_true)
 
             D_total_loss = fake_loss + real_loss
-            # print(2, D_total_loss.device, D_total_loss.shape, fake_loss.device, fake_loss.shape, real_loss.device, real_loss.shape)
-            # print(3, fake_x.shape, fake_y.shape)
 
             self.D_optim.zero_grad()
             D_total_loss.backward()
@@ -130,16 +125,18 @@ class Runner():
             fake_x = self.G.forward(x)
             self.tensorboard.log_image(fake_x, x, target, self.global_step)
 
-    def inference(self, inference_loader):
+    def inference(self, inference_loader, file_ext):
         with torch.no_grad():
             for i, (x, target, path) in enumerate(inference_loader):
                 fake_x = self.G.forward(x)
                 for img, p in zip(fake_x, path):
-                    save_dir = self.arg.save_dir + "/inference/%s" % p.replace(".png", ".npy")
+                    save_dir = self.arg.save_dir + "/inference/%s" % p
                     os.makedirs(os.path.dirname(save_dir), exist_ok=True)
-                    np.save(save_dir, img.cpu().numpy())
 
-                    # save_image(img, save_dir)
+                    if file_ext == "npy":
+                        np.save(save_dir, img.cpu().numpy())
+                    if file_ext == "png":
+                        save_image(img, save_dir)
 
 
 if __name__ == "__main__":

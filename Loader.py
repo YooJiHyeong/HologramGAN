@@ -1,13 +1,18 @@
+import os
 import random
+from pathlib import Path
 from PIL import Image
+
+import numpy as np
 
 import torch
 from torch.utils import data
-from torchvision.transforms import ToTensor, Resize
+from torchvision.transforms import ToPILImage
 
 
 class CSVSet(data.Dataset):
-    def __init__(self, csv_path, transform=None, aug_rate=0, delim=","):
+    def __init__(self, csv_path, file_ext, transform=None, aug_rate=0, delim=";"):
+        self.file_ext = file_ext
         self.items = []
 
         with open(csv_path, "r") as f:
@@ -18,13 +23,20 @@ class CSVSet(data.Dataset):
                 line = line.strip().split(delim)
                 self.items += [line]
 
-        self.transform = [Resize((512, 512)), ToTensor()]
-        if transform is not None:
-            self.transform[1:1] = transform
-        
+        self.transform = transform
+        if self.file_ext == "npy":
+            self.transform[0:0] = [ToPILImage()]
+
     def __getitem__(self, idx):
         def _get(img):
-            img = Image.open(img)
+            img = os.path.join(img)
+
+            if self.file_ext == "png":
+                img = Image.open(img)
+            elif self.file_ext == "npy":
+                img = np.load(img).astype('float32')
+                img = np.expand_dims(img, axis=-1)
+
             for t in self.transform:
                 img = t(img)
             return img
@@ -39,7 +51,7 @@ class CSVSet(data.Dataset):
         return len(self.items)
 
 
-def CSVLoader(csv_path, batch_size, sampler=False,
+def CSVLoader(csv_path, batch_size, file_ext, sampler=False,
               transform=None, aug_rate=0, num_workers=1,
               shuffle=False, drop_last=False, cycle=True):
 
@@ -49,7 +61,7 @@ def CSVLoader(csv_path, batch_size, sampler=False,
                 yield element
             random.shuffle(loader.dataset.items)
 
-    dataset = CSVSet(csv_path, transform=transform, aug_rate=aug_rate, delim=",")
+    dataset = CSVSet(csv_path, file_ext, transform=transform, aug_rate=aug_rate, delim=";")
     loader = data.DataLoader(dataset, batch_size, shuffle=shuffle, num_workers=num_workers, drop_last=drop_last, pin_memory=True)
 
     if cycle:

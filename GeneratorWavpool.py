@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from wavelet_modules import WaveUnpool, WavePool
 from preset import block_ch
@@ -89,7 +90,7 @@ class GeneratorWavpool(nn.Module):
         LL, LH, HL, HH, original = self.from_rgb(x)
         features = [(LH, HL, HH, original)]
 
-        for e in self.encoder:
+        for i, e in enumerate(self.encoder):
             LL, LH, HL, HH, original = e(LL)
             features.append((LH, HL, HH, original))
 
@@ -97,7 +98,6 @@ class GeneratorWavpool(nn.Module):
             LL = d(LL, *features[-i - 1])
 
         x = self.to_rgb(LL, *features[0])
-
         return x
 
 

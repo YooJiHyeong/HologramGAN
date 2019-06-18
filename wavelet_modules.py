@@ -57,7 +57,7 @@ class WavePool(nn.Module):
 
     def forward(self, x):
         return self.LL(x), self.LH(x), self.HL(x), self.HH(x)
-    
+
 
 class WaveUnpool(nn.Module):
     def __init__(self, in_channels, option_unpool='cat5'):
