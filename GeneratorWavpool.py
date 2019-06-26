@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from wavelet_modules import WaveUnpool, WavePool
 from preset import block_ch

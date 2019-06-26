@@ -26,6 +26,6 @@ class TensorboardLogger(SummaryWriter):
 
     def log_image(self, fake_x, x, target, global_step):
         img = torch.cat([fake_x.cpu(), x[:, 0:1, :, :], target, x[:, 1:2, :, :]], 3)
-        img.clamp_(0, 1)
+        # img.clamp_(0, 1)
         img = torchvision.utils.make_grid(img, nrow=1)
         self.add_image("fake | x0 | target(x1) | x2", img, global_step)

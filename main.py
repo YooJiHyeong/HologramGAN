@@ -21,7 +21,7 @@ def arg_parse():
 
     parser.add_argument('--gpus', type=str, default=",".join(map(str, range(cuda.device_count()))),
                         help="Select GPU Numbering (Default : Maximum number of available GPUs)")
-    parser.add_argument('--cpus', type=int, default="32",
+    parser.add_argument('--cpus', type=int, default="60",
                         help="The number of CPU workers")
 
     parser.add_argument('--csv_ver', type=str, default="3",
@@ -53,7 +53,7 @@ def arg_parse():
                         help="The number of batches for train")
     parser.add_argument('--batch_test', type=int, default=8,
                         help="The number of batches for test(note that this is equivalent to the number of logged sample images)")
-    parser.add_argument('--batch_infer', type=int, default=192,
+    parser.add_argument('--batch_infer', type=int, default=128,
                         help="The number of batches for inference")
 
     parser.add_argument('--G', type=str, default="wavelet", choices=["unet", "wavelet", "avgpool"],
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     runner = Runner(arg, total_step, G, D, train_loader, test_loader, device, tensorboard)
 
     if arg.inference:
-        inference_loader = CSVLoader(infer_csv, arg.batch_infer, num_workers=arg.cpus, shuffle=False, drop_last=False, cycle=False)
+        inference_loader = CSVLoader(infer_csv, arg.batch_infer, arg.file_ext, transform=test_transform, num_workers=arg.cpus, shuffle=False, drop_last=False, cycle=False)
         runner.load(filename=arg.load_path, abs_filename=arg.load_abspath)
         runner.inference(inference_loader, arg.file_ext)
         exit()
