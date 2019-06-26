@@ -36,8 +36,7 @@ class CSVSet(data.Dataset):
             elif self.file_ext == "npy":
                 img = np.load(img).astype('float32')
                 img = np.expand_dims(img, axis=-1)
-
-            for t in self.transform:
+            for i, t in enumerate(self.transform):
                 img = t(img)
             return img
 

@@ -69,8 +69,9 @@ if __name__ == "__main__":
     test_csv  = "./csvs/test_%s_%s_%s.csv"  % (arg.csv_ver, arg.input_domain, arg.file_ext)
     infer_csv = "./csvs/infer_%s_%s_%s.csv" % (arg.csv_ver, arg.input_domain, arg.file_ext)
 
-    train_transform = [CenterCrop(arg.resl), ToTensor()]
-    test_transform  = [CenterCrop(arg.resl), ToTensor()]
+    train_transform  = [CenterCrop(arg.resl), ToTensor()]
+    test_transform   = [CenterCrop(arg.resl), ToTensor()]
+    infer_transform  = [CenterCrop(arg.resl), ToTensor()]
 
     arg.save_dir = "%s/outs/%s" % (os.getcwd(), arg.save_dir)
     if os.path.exists(arg.save_dir) is False:
@@ -103,7 +104,8 @@ if __name__ == "__main__":
     runner = Runner(arg, total_step, G, D, train_loader, test_loader, device, tensorboard)
 
     if arg.inference:
-        inference_loader = CSVLoader(infer_csv, arg.batch_infer, arg.file_ext, transform=test_transform, num_workers=arg.cpus, shuffle=False, drop_last=False, cycle=False)
+        inference_loader = CSVLoader(infer_csv, arg.batch_infer, arg.file_ext, transform=infer_transform, num_workers=arg.cpus, shuffle=False, drop_last=False, cycle=False)
+
         runner.load(filename=arg.load_path, abs_filename=arg.load_abspath)
         runner.inference(inference_loader, arg.file_ext)
         exit()
