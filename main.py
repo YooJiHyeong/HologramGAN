@@ -30,6 +30,8 @@ def arg_parse():
                         help='Select input domain')
     parser.add_argument('--file_ext', type=str, default="npy", choices=["png", "npy"],
                         help='Select input file extension')
+    parser.add_argument('--infer_csv', type=str, default=None,
+                        help='Specify inference csv file')
 
     parser.add_argument('--save_dir', type=str, required=True,
                         help='Directory which models will be saved in')
@@ -67,7 +69,10 @@ if __name__ == "__main__":
 
     train_csv = "./csvs/train_%s_%s_%s.csv" % (arg.csv_ver, arg.input_domain, arg.file_ext)
     test_csv  = "./csvs/test_%s_%s_%s.csv"  % (arg.csv_ver, arg.input_domain, arg.file_ext)
-    infer_csv = "./csvs/infer_%s_%s_%s.csv" % (arg.csv_ver, arg.input_domain, arg.file_ext)
+    if arg.infer_csv is not None:
+        infer_csv = "./csvs/%s" % arg.infer_csv
+    else:
+        infer_csv = "./csvs/infer_%s_%s_%s.csv" % (arg.csv_ver, arg.input_domain, arg.file_ext)
 
     train_transform  = [CenterCrop(arg.resl), ToTensor()]
     test_transform   = [CenterCrop(arg.resl), ToTensor()]
