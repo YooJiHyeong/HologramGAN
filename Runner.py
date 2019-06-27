@@ -125,7 +125,7 @@ class Runner():
             fake_x = self.G.forward(x)
             self.tensorboard.log_image(fake_x, x, target, self.global_step)
 
-    def inference(self, inference_loader, file_ext):
+    def inference(self, inference_loader):
         with torch.no_grad():
             for i, (x, target, path) in enumerate(inference_loader):
                 fake_x = self.G.forward(x)
@@ -133,10 +133,7 @@ class Runner():
                     save_dir = self.arg.save_dir + "/inference/%s" % p
                     os.makedirs(os.path.dirname(save_dir), exist_ok=True)
 
-                    if file_ext == "npy":
-                        np.save(save_dir, img.cpu().numpy())
-                    if file_ext == "png":
-                        save_image(img, save_dir)
+                    np.save(save_dir, img.cpu().numpy())
 
 
 if __name__ == "__main__":

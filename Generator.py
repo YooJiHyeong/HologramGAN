@@ -20,7 +20,6 @@ class Generator(nn.Module):
             nn.Upsample(scale_factor=2),
             nn.Conv2d(start_ch, img_ch // 2, 3, 1, 1),
             # nn.ConvTranspose2d(start_ch, img_ch // 2, 4, 2, 1),
-            nn.Tanh()
         )
 
         self.encoder = []

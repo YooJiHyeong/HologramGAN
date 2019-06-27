@@ -24,12 +24,10 @@ def arg_parse():
     parser.add_argument('--cpus', type=int, default="60",
                         help="The number of CPU workers")
 
-    parser.add_argument('--csv_ver', type=str, default="3",
+    parser.add_argument('--csv_ver', type=str, default="4",
                         help='Select version of csv files for dataloader')
     parser.add_argument('--input_domain', type=str, required=True, choices=["amp", "phase", "ifgram"],
                         help='Select input domain')
-    parser.add_argument('--file_ext', type=str, default="npy", choices=["png", "npy"],
-                        help='Select input file extension')
     parser.add_argument('--infer_csv', type=str, default=None,
                         help='Specify inference csv file')
 
@@ -67,12 +65,12 @@ def arg_parse():
 if __name__ == "__main__":
     arg = arg_parse()
 
-    train_csv = "./csvs/train_%s_%s_%s.csv" % (arg.csv_ver, arg.input_domain, arg.file_ext)
-    test_csv  = "./csvs/test_%s_%s_%s.csv"  % (arg.csv_ver, arg.input_domain, arg.file_ext)
+    train_csv = "./csvs/train_%s_%s.csv" % (arg.csv_ver, arg.input_domain)
+    test_csv  = "./csvs/test_%s_%s.csv"  % (arg.csv_ver, arg.input_domain)
     if arg.infer_csv is not None:
         infer_csv = "./csvs/%s" % arg.infer_csv
     else:
-        infer_csv = "./csvs/infer_%s_%s_%s.csv" % (arg.csv_ver, arg.input_domain, arg.file_ext)
+        infer_csv = "./csvs/infer_%s_%s.csv" % (arg.csv_ver, arg.input_domain)
 
     train_transform  = [CenterCrop(arg.resl), ToTensor()]
     test_transform   = [CenterCrop(arg.resl), ToTensor()]
@@ -101,18 +99,18 @@ if __name__ == "__main__":
 
     D = nn.DataParallel(Discriminator().to(device["model"]), output_device=device["output"])
 
-    train_loader = CSVLoader(train_csv, arg.batch_train, arg.file_ext, transform=train_transform, num_workers=arg.cpus, shuffle=True, drop_last=True)
-    test_loader  = CSVLoader(test_csv,  arg.batch_test,  arg.file_ext, transform=test_transform,  num_workers=arg.cpus, shuffle=True, drop_last=True)
+    train_loader = CSVLoader(train_csv, arg.batch_train, transform=train_transform, num_workers=arg.cpus, shuffle=True, drop_last=True)
+    test_loader  = CSVLoader(test_csv,  arg.batch_test,  transform=test_transform,  num_workers=arg.cpus, shuffle=True, drop_last=True)
 
     tensorboard = utils.TensorboardLogger("%s/tb" % (arg.save_dir))
 
     runner = Runner(arg, total_step, G, D, train_loader, test_loader, device, tensorboard)
 
     if arg.inference:
-        inference_loader = CSVLoader(infer_csv, arg.batch_infer, arg.file_ext, transform=infer_transform, num_workers=arg.cpus, shuffle=False, drop_last=False, cycle=False)
+        inference_loader = CSVLoader(infer_csv, arg.batch_infer, transform=infer_transform, num_workers=arg.cpus, shuffle=False, drop_last=False, cycle=False)
 
         runner.load(filename=arg.load_path, abs_filename=arg.load_abspath)
-        runner.inference(inference_loader, arg.file_ext)
+        runner.inference(inference_loader)
         exit()
 
     if any([arg.load_last, arg.load_path, arg.load_abspath]):
