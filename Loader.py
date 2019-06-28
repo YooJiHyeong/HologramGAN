@@ -54,7 +54,7 @@ class CSVSet(data.Dataset):
         return len(self.items)
 
 
-def CSVLoader(csv_path, batch_size, input_domain, sampler=False,
+def CSVLoader(csv_path, input_domain, batch_size, sampler=False,
               transform=None, aug_rate=0, num_workers=1,
               shuffle=False, drop_last=False, cycle=True):
 
