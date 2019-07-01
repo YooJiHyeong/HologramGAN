@@ -41,9 +41,13 @@ class CSVSet(data.Dataset):
         if self.input_domain == "phase":
             x.clamp_(-6.4, 7.2)
             x = (x + 6.4) / (7.2 + 6.4)
+            target.clamp_(-6.4, 7.2)
+            target = (target + 6.4) / (7.2 + 6.4)
         elif self.input_domain == "amp":
             x.clamp_(0, 4.5)
             x = (x + 0) / (0 + 4.5)
+            target.clamp_(0, 4.5)
+            target = (target + 0) / (0 + 4.5)
         else:
             raise NotImplementedError
 
