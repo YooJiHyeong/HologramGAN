@@ -107,7 +107,7 @@ if __name__ == "__main__":
     runner = Runner(arg, total_step, G, D, train_loader, test_loader, device, tensorboard)
 
     if arg.inference:
-        inference_loader = CSVLoader(infer_csv, arg.batch_infer, transform=infer_transform, num_workers=arg.cpus, shuffle=False, drop_last=False, cycle=False)
+        inference_loader = CSVLoader(infer_csv, arg.input_domain, arg.batch_infer, transform=infer_transform, num_workers=arg.cpus, shuffle=False, drop_last=False, cycle=False)
 
         runner.load(filename=arg.load_path, abs_filename=arg.load_abspath)
         runner.inference(inference_loader)
