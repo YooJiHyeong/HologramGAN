@@ -24,7 +24,7 @@ def arg_parse():
     parser.add_argument('--cpus', type=int, default="60",
                         help="The number of CPU workers")
 
-    parser.add_argument('--csv_ver', type=str, default="4",
+    parser.add_argument('--csv_ver', type=str, default="5",
                         help='Select version of csv files for dataloader')
     parser.add_argument('--input_domain', type=str, required=True, choices=["amp", "phase", "ifgram"],
                         help='Select input domain')
@@ -43,7 +43,7 @@ def arg_parse():
     parser.add_argument('--inference', action="store_true",
                         help='Infer images')
 
-    parser.add_argument('--total_step', type=int, default="10000000",
+    parser.add_argument('--total_step', type=int, default="15000",
                         help="The number of total steps")
 
     parser.add_argument('--resl', type=int, default=384,    # default is 384 for phase / amplitude images
